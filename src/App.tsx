@@ -43,22 +43,22 @@ function applyTicks(state: EmpireState, n: number, shock: Record<string, number>
 }
 
 export default function App() {
-  const [hydrated, setHydrated] = useState(false);
   const [state, setState] = useState<EmpireState>(() => newEmpire());
+  const [restored, setRestored] = useState(false);
   const [marketOpen, setMarketOpen] = useState(false);
 
   useEffect(() => {
     setState(loadEmpire());
-    setHydrated(true);
+    setRestored(true);
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!restored) return;
     persistEmpire(state);
-  }, [hydrated, state]);
+  }, [restored, state]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!restored) return;
     const flush = () => persistEmpire(state);
     const onHide = () => {
       if (document.visibilityState === "hidden") flush();
@@ -69,7 +69,7 @@ export default function App() {
       document.removeEventListener("visibilitychange", onHide);
       window.removeEventListener("pagehide", flush);
     };
-  }, [hydrated, state]);
+  }, [restored, state]);
 
   const ownedCards = useMemo(() => cardMap(state.ownedIds), [state.ownedIds]);
   const hand = useMemo(() => cardMap(state.handIds), [state.handIds]);
@@ -170,16 +170,6 @@ export default function App() {
   const tickTape = () => {
     setState((s) => applyTicks(s, 1));
   };
-
-  if (!hydrated) {
-    return (
-      <div className="axis-root">
-        <div className="axis-boot">
-          <p className="axis-kicker">The Columbus Axis</p>
-        </div>
-      </div>
-    );
-  }
 
   if (state.phase === "title") {
     const hasProgress = state.ownedIds.length > 0 || state.cycle > 1 || state.coin !== 1000;
