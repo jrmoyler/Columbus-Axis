@@ -1,0 +1,582 @@
+.axis-root {
+  --bg: #0a0a0a;
+  --bg-elevated: #121214;
+  --bg-subtle: #1a1a1e;
+  --fg: #e8e4dc;
+  --fg-muted: #8a8f98;
+  --fg-subtle: #6b7078;
+  --border: color-mix(in oklab, var(--fg) 12%, transparent);
+  --border-strong: color-mix(in oklab, var(--fg) 22%, transparent);
+  --burgundy: #7a2433;
+  --gold: #d4a843;
+  --gold-fg: #1a1408;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --motion-quick: 150ms;
+  --motion-fast: 250ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-display);
+  display: flex;
+  flex-direction: column;
+}
+
+.axis-root * {
+  box-sizing: border-box;
+}
+
+.axis-boot,
+.axis-title {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background:
+    radial-gradient(1200px 500px at 50% -10%, color-mix(in oklab, var(--burgundy) 28%, transparent), transparent 60%),
+    var(--bg);
+}
+
+.axis-title-card {
+  width: min(560px, 100%);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.axis-kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.axis-title h1,
+.axis-shell-brand h1 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+}
+
+.axis-sub {
+  margin: 0;
+  color: var(--fg-muted);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.axis-rules {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.axis-title-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.axis-btn {
+  appearance: none;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-subtle);
+  color: var(--fg);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font: inherit;
+  font-weight: 500;
+  min-height: 44px;
+  transition: opacity var(--motion-quick) var(--ease-out), transform var(--motion-quick) var(--ease-out),
+    background var(--motion-quick) var(--ease-out);
+}
+
+.axis-btn:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--bg-subtle) 70%, var(--fg) 8%);
+}
+
+.axis-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.axis-btn:disabled {
+  opacity: 0.4;
+}
+
+.axis-btn-primary {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+
+.axis-btn-gold {
+  background: var(--gold);
+  color: var(--gold-fg);
+  border-color: var(--gold);
+}
+
+.axis-btn-tiny {
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+}
+
+.axis-icon-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg-muted);
+  border-radius: var(--radius-sm);
+  min-height: 40px;
+  padding: 8px 12px;
+  font: inherit;
+}
+
+.axis-shell {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+}
+
+.axis-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg-elevated) 88%, transparent);
+}
+
+.axis-shell-brand h1 {
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.axis-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.axis-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 72px;
+}
+
+.axis-stat span {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.axis-stat strong {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+}
+
+.axis-stat-gold strong {
+  color: var(--gold);
+}
+
+.axis-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+  min-height: 0;
+}
+
+.axis-map-wrap {
+  position: relative;
+  min-height: 320px;
+  border-right: 1px solid var(--border);
+  background: #0a0a0a;
+}
+
+.axis-map-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.axis-map-hint {
+  position: absolute;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in oklab, var(--bg) 78%, transparent);
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+  font-size: 0.78rem;
+  pointer-events: none;
+}
+
+.axis-side {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg-elevated);
+}
+
+.axis-side-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.axis-hand {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.axis-card {
+  text-align: left;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: grid;
+  gap: 6px;
+  color: inherit;
+  font: inherit;
+  min-height: 44px;
+}
+
+.axis-card.is-selected {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+.axis-card.is-owned {
+  opacity: 0.45;
+}
+
+.axis-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.axis-card h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.axis-rarity {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+}
+
+.axis-rarity.rare {
+  color: var(--gold);
+}
+
+.axis-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+}
+
+.axis-ability {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}
+
+.axis-holdings {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.axis-holding {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.85rem;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.axis-side-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.axis-side-actions .axis-btn:first-child {
+  grid-column: 1 / -1;
+}
+
+.axis-log {
+  border-top: 1px solid var(--border);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  gap: var(--space-4);
+  overflow-x: auto;
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  min-height: 48px;
+}
+
+.axis-log span {
+  white-space: nowrap;
+}
+
+.axis-dominion {
+  height: 4px;
+  background: var(--bg-subtle);
+}
+
+.axis-dominion > i {
+  display: block;
+  height: 100%;
+  background: var(--burgundy);
+  width: 0;
+  transition: width var(--motion-fast) var(--ease-out);
+}
+
+.axis-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in oklab, #000 55%, transparent);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  z-index: 20;
+}
+
+.axis-modal {
+  width: min(920px, 100%);
+  max-height: min(92dvh, 840px);
+  overflow: auto;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+}
+
+.axis-modal-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  align-items: flex-start;
+  margin-bottom: var(--space-4);
+}
+
+.axis-modal h2 {
+  margin: 6px 0 8px;
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+}
+
+.axis-market-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) 1fr;
+  gap: var(--space-5);
+}
+
+.axis-market-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.axis-market-list button {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 10px 12px;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: inherit;
+  font: inherit;
+}
+
+.axis-market-list button.is-active {
+  border-color: var(--gold);
+}
+
+.axis-market-name {
+  flex: 1;
+  font-size: 0.85rem;
+}
+
+.axis-market-px {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--gold);
+}
+
+.axis-chip {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 2px 6px;
+}
+
+.axis-market-detail h3 {
+  margin: 0 0 6px;
+}
+
+.axis-spark {
+  width: 100%;
+  height: 48px;
+  color: var(--gold);
+  margin: var(--space-3) 0;
+}
+
+.axis-yesno {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.axis-yesno span {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-muted);
+}
+
+.axis-yesno strong {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+}
+
+.axis-influence,
+.axis-muted {
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+}
+
+.axis-stake-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.axis-stake-row button {
+  min-width: 44px;
+  min-height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: inherit;
+  font: inherit;
+}
+
+.axis-stake-row button.is-active {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.axis-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.axis-positions {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+.axis-pos-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: center;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+.axis-empty {
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .axis-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(280px, 42dvh) 1fr;
+  }
+
+  .axis-map-wrap {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .axis-market-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .axis-side-actions {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-elevated);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .axis-btn,
+  .axis-dominion > i {
+    transition: none;
+  }
+}

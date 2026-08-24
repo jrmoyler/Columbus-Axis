@@ -13,24 +13,28 @@ npm run dev
 
 Open the URL Vite prints (usually http://localhost:5173).
 
-## What is in this prototype (v0.1)
+## Play loop
 
-### Core loop
 1. Start with **1,000 Axis Coin** and a starter hand of property cards.
-2. Select a card → click the matching neighborhood tile on the **3D map** → a building is placed, coin is spent, ownership is claimed.
-3. Card **abilities resolve** (bias, rent multipliers, synergies, one-shots).
-4. **Collect Rent** each cycle.
-5. Open **Axis Market** (the original Columbus prediction-market simulator) — fair values, agent pressure, and events are now influenced by the properties you own and the abilities you triggered.
-6. Draw more cards, expand your holdings, raise Dominion % toward controlling Central Ohio.
+2. Select a card → click the matching neighborhood tile on the **3D map** → a building is placed, coin is spent, abilities resolve.
+3. **Collect Rent** each cycle. **Draw** more cards (40 coin, once per cycle).
+4. Open **Axis Market** — fair values, floors, and shocks are driven by the properties you own.
+5. Survive the **cycle-6 rate shock**, then push **Dominion to 60%** to win.
 
-### Key systems
-- **Axis Coin** — single in-game currency for purchases, rents, and market stakes.
-- **Property cards** — data-driven TCG layer (`src/data/properties.ts`) with real Columbus neighborhood / submarket names.
-- **3D Ohio map** — Three.js scene (`src/components/OhioMap3D.tsx`). Drag to orbit, click tiles to place.
-- **Ability resolution** — real effects (temporary market bias, rent multipliers, industrial synergy, Intel floor, etc.).
-- **Axis Market mini-game** — your original simulator, now receives an `influence` prop so ownership drives the tape instead of free agent-mix sliders.
+Empire state autosaves in `localStorage`.
+
+## What ships in this build
+
+- **Axis Coin** — purchases, rents, and market stakes.
+- **16 property cards** — real Columbus neighborhood / submarket names (`src/data/properties.ts`).
+- **3D Central Ohio map** — Three.js (`src/components/OhioMap3D.tsx`). Drag to orbit, click tiles to place.
+- **Ability resolution** — market bias, rent multipliers, industrial synergy, Intel floor, inventory surge, and more.
+- **Axis Market mini-game** — buy/sell YES and NO; holdings bias the tape.
+- **Persistence** — versioned local save, restored on Continue.
+- **Win / lose** — Dominion ≥ 60% after surviving the rate shock, or receivership if the books go to zero.
 
 ### Explicit v1 cuts
+
 - Full photogrammetry / real MLS feeds
 - Multiplayer / ranked ladder
 - Deep RPG story / dialogue
@@ -41,29 +45,25 @@ Open the URL Vite prints (usually http://localhost:5173).
 
 ```
 src/
-  App.tsx                 # Shell, economy, hand, abilities, market modal
-  AxisMarketColumbus.tsx  # Prediction market (influence-driven)
-  components/
-    OhioMap3D.tsx         # Three.js Central Ohio map + buildings
-  data/
-    properties.ts         # Card definitions
-  App.css / index.css
+  App.tsx                    # Shell, economy, hand, abilities, win/lose
+  AxisMarketColumbus.tsx     # Prediction market (influence-driven)
+  components/OhioMap3D.tsx   # Three.js Central Ohio map + buildings
+  data/properties.ts         # Card + tile definitions
+  data/market.ts             # Tape, positions, ticks
+  lib/empire.ts              # Dominion, rent, ability resolution
+  lib/save.ts                # localStorage persistence
 ```
 
 ## Design identity
 
 - Dark carbon ground (`#0A0A0A`)
 - Axis burgundy accent + Collective Amber Gold on cash
-- Space Grotesk
+- Space Grotesk + IBM Plex Mono
 - Real neighborhood names, fictional prices & probabilities
 
-## Next steps (suggested)
+## Deploy
 
-1. Persist empire state (localStorage / IndexedDB)
-2. Expand the card pool and ability catalog
-3. Richer 3D building library (instanced meshes per subtype)
-4. Market events that can be triggered by ownership thresholds
-5. Win screen when Dominion ≥ 60 % and a stress-test is survived
+This is a Vite SPA. Vercel should detect the framework automatically (`vercel.json` pins `framework: vite`, `outputDirectory: dist`). Build command is `npm run build` (`tsc -b && vite build`).
 
 ---
 
