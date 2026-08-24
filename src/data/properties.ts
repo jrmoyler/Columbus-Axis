@@ -1,0 +1,197 @@
+// Property cards for The Columbus Axis — data-driven TCG layer
+// Real neighborhood / submarket names; costs, rents, abilities are game-tuned fiction.
+
+export type PropertyCategory = "residential" | "commercial";
+export type PropertySubtype = "Residential" | "Office" | "Retail" | "Industrial" | "Mixed-Use";
+
+export interface PropertyCard {
+  id: string;
+  name: string;
+  neighborhood: string;
+  category: PropertyCategory;
+  subtype: PropertySubtype;
+  cost: number;
+  baseRent: number;
+  ability: string;
+  abilityKey: string;
+  rarity: "common" | "uncommon" | "rare";
+  mapX: number;
+  mapY: number;
+}
+
+export const PROPERTY_CARDS: PropertyCard[] = [
+  {
+    id: "short-north-condo",
+    name: "Short North Condo Block",
+    neighborhood: "Short North",
+    category: "residential",
+    subtype: "Residential",
+    cost: 180,
+    baseRent: 12,
+    ability: "On play: +4¢ bias to Short North inventory markets",
+    abilityKey: "bias-short-north",
+    rarity: "uncommon",
+    mapX: 48,
+    mapY: 42,
+  },
+  {
+    id: "german-village-row",
+    name: "German Village Brick Row",
+    neighborhood: "German Village",
+    category: "residential",
+    subtype: "Residential",
+    cost: 160,
+    baseRent: 11,
+    ability: "Passive: +1 rent for every adjacent residential you own",
+    abilityKey: "adjacency-residential",
+    rarity: "common",
+    mapX: 52,
+    mapY: 55,
+  },
+  {
+    id: "downtown-office",
+    name: "Downtown Office Tower",
+    neighborhood: "Downtown",
+    category: "commercial",
+    subtype: "Office",
+    cost: 320,
+    baseRent: 22,
+    ability: "On play: trigger 'Conversion incentive' style pressure on Office markets",
+    abilityKey: "conversion-pressure",
+    rarity: "rare",
+    mapX: 50,
+    mapY: 48,
+  },
+  {
+    id: "new-albany-campus",
+    name: "New Albany / Intel Corridor Site",
+    neighborhood: "New Albany",
+    category: "commercial",
+    subtype: "Office",
+    cost: 380,
+    baseRent: 28,
+    ability: "While owned: Intel-timeline markets cannot crash below 35¢",
+    abilityKey: "intel-floor",
+    rarity: "rare",
+    mapX: 72,
+    mapY: 28,
+  },
+  {
+    id: "polaris-retail",
+    name: "Polaris Fashion Anchor",
+    neighborhood: "Polaris Fashion District",
+    category: "commercial",
+    subtype: "Retail",
+    cost: 240,
+    baseRent: 16,
+    ability: "On play: +6¢ to all Retail foot-traffic markets this session",
+    abilityKey: "retail-boost",
+    rarity: "uncommon",
+    mapX: 58,
+    mapY: 22,
+  },
+  {
+    id: "rickenbacker-logistics",
+    name: "Rickenbacker Distribution Hub",
+    neighborhood: "Rickenbacker Corridor",
+    category: "commercial",
+    subtype: "Industrial",
+    cost: 290,
+    baseRent: 20,
+    ability: "Passive: Logistics Boom events grant double Axis Coin when you own this",
+    abilityKey: "logistics-double",
+    rarity: "uncommon",
+    mapX: 62,
+    mapY: 72,
+  },
+  {
+    id: "clintonville-bungalow",
+    name: "Clintonville Bungalow Court",
+    neighborhood: "Clintonville",
+    category: "residential",
+    subtype: "Residential",
+    cost: 140,
+    baseRent: 9,
+    ability: "Cheap entry. On play: draw one extra residential card next turn (v1: +50 coin)",
+    abilityKey: "starter-boost",
+    rarity: "common",
+    mapX: 45,
+    mapY: 32,
+  },
+  {
+    id: "arena-district-mixed",
+    name: "Arena District Mixed-Use",
+    neighborhood: "Arena District",
+    category: "commercial",
+    subtype: "Mixed-Use",
+    cost: 350,
+    baseRent: 24,
+    ability: "Counts as both Residential and Commercial for ownership scoring",
+    abilityKey: "dual-count",
+    rarity: "rare",
+    mapX: 47,
+    mapY: 46,
+  },
+  {
+    id: "dublin-bridge",
+    name: "Dublin Bridge Street Retail",
+    neighborhood: "Dublin Bridge Street",
+    category: "commercial",
+    subtype: "Retail",
+    cost: 210,
+    baseRent: 14,
+    ability: "On play: raise commercial average YES by 3¢ for 8 ticks",
+    abilityKey: "com-avg-bump",
+    rarity: "common",
+    mapX: 28,
+    mapY: 25,
+  },
+  {
+    id: "upper-arlington",
+    name: "Upper Arlington Estate Lot",
+    neighborhood: "Upper Arlington",
+    category: "residential",
+    subtype: "Residential",
+    cost: 260,
+    baseRent: 18,
+    ability: "High-value residential. Passive +2 rent while metro supply is tight",
+    abilityKey: "tight-supply-rent",
+    rarity: "uncommon",
+    mapX: 35,
+    mapY: 35,
+  },
+  {
+    id: "franklinton-arts",
+    name: "Franklinton Arts Warehouse",
+    neighborhood: "Franklinton",
+    category: "commercial",
+    subtype: "Mixed-Use",
+    cost: 175,
+    baseRent: 11,
+    ability: "On play: unlock a one-time 'Inventory surge' counter-event",
+    abilityKey: "counter-surge",
+    rarity: "common",
+    mapX: 42,
+    mapY: 58,
+  },
+  {
+    id: "groveport-industrial",
+    name: "Groveport Logistics Park",
+    neighborhood: "Groveport Logistics Park",
+    category: "commercial",
+    subtype: "Industrial",
+    cost: 270,
+    baseRent: 19,
+    ability: "Industrial synergy: +3 rent if you also own Rickenbacker",
+    abilityKey: "industrial-synergy",
+    rarity: "uncommon",
+    mapX: 68,
+    mapY: 78,
+  },
+];
+
+export const STARTER_HAND_IDS = [
+  "clintonville-bungalow",
+  "german-village-row",
+  "dublin-bridge",
+];
