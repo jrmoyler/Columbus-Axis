@@ -1,19 +1,6 @@
 import { useMemo, useState } from "react";
-import type { MarketContract, Position } from "./data/market";
-import { buyPosition, positionValue, sellPosition } from "./data/market";
-import type { Influence } from "./data/market";
-
-interface AxisMarketProps {
-  open: boolean;
-  coin: number;
-  markets: MarketContract[];
-  positions: Position[];
-  influence: Influence;
-  onClose: () => void;
-  onBuy: (next: Position[], spent: number, note: string) => void;
-  onSell: (next: Position[], proceeds: number, note: string) => void;
-  onTick: () => void;
-}
+import { useEmpire, useDerived } from "../store";
+import { positionValue } from "../sim";
 
 const STAKES = [25, 50, 100];
 
@@ -38,48 +25,28 @@ function Spark({ history }: { history: number[] }) {
   );
 }
 
-export function AxisMarket({
-  open,
-  coin,
-  markets,
-  positions,
-  influence,
-  onClose,
-  onBuy,
-  onSell,
-  onTick,
-}: AxisMarketProps) {
+export function MarketPanel() {
+  const open = useEmpire((s) => s.marketOpen);
+  const coin = useEmpire((s) => s.coin);
+  const markets = useEmpire((s) => s.markets);
+  const positions = useEmpire((s) => s.positions);
+  const onClose = useEmpire((s) => s.setMarketOpen);
+  const buy = useEmpire((s) => s.buy);
+  const sell = useEmpire((s) => s.sell);
+  const tick = useEmpire((s) => s.tickTape);
+  const { influence } = useDerived();
   const [stake, setStake] = useState(50);
   const [picked, setPicked] = useState(markets[0]?.id ?? "sn-inventory");
   if (!open) return null;
-
   const market = markets.find((m) => m.id === picked) ?? markets[0];
   if (!market) return null;
-
   const yesPos = positions.find((p) => p.marketId === market.id && p.side === "yes");
   const noPos = positions.find((p) => p.marketId === market.id && p.side === "no");
   const bias = influence.bias[market.id] ?? 0;
   const floor = influence.floor[market.id];
 
-  const tryBuy = (side: "yes" | "no") => {
-    const amt = Math.min(stake, coin);
-    const res = buyPosition(positions, market.id, side, amt, market.yesCents);
-    if (!res) return;
-    onBuy(
-      res.positions,
-      res.spent,
-      `Bought ${res.shares.toFixed(2)} ${side.toUpperCase()} on ${market.name} @ ${market.yesCents.toFixed(1)}¢`,
-    );
-  };
-
-  const trySell = (side: "yes" | "no") => {
-    const res = sellPosition(positions, market.id, side, market.yesCents);
-    if (!res) return;
-    onSell(res.positions, res.proceeds, `Closed ${side.toUpperCase()} on ${market.name} for ${res.proceeds} coin`);
-  };
-
   return (
-    <div className="axis-modal-backdrop" onClick={onClose} role="presentation">
+    <div className="axis-modal-backdrop" onClick={() => onClose(false)} role="presentation">
       <div
         className="axis-modal axis-market-modal"
         role="dialog"
@@ -90,15 +57,12 @@ export function AxisMarket({
           <div>
             <p className="axis-kicker">Axis Market</p>
             <h2 id="axis-market-title">Central Ohio tape</h2>
-            <p className="axis-sub">
-              Ownership sets the fair value. There are no free sliders — your buildings are the bid.
-            </p>
+            <p className="axis-sub">Ownership sets fair value. There are no free sliders.</p>
           </div>
-          <button type="button" className="axis-icon-btn" onClick={onClose} aria-label="Close market">
+          <button type="button" className="axis-icon-btn" onClick={() => onClose(false)}>
             Close
           </button>
         </header>
-
         <div className="axis-market-layout">
           <ul className="axis-market-list">
             {markets.map((m) => {
@@ -118,7 +82,6 @@ export function AxisMarket({
               );
             })}
           </ul>
-
           <div className="axis-market-detail">
             <h3>{market.name}</h3>
             <p className="axis-sub">{market.question}</p>
@@ -141,33 +104,30 @@ export function AxisMarket({
               {bias !== 0 ? `Holdings bias ${bias > 0 ? "+" : ""}${bias.toFixed(1)}¢. ` : "No direct holdings bias. "}
               {floor != null ? `Floor ${floor}¢ is live.` : "No floor."}
             </p>
-
             <div className="axis-stake-row">
-              {STAKES.map((s) => (
+              {STAKES.map((st) => (
                 <button
-                  key={s}
+                  key={st}
                   type="button"
-                  className={stake === s ? "is-active" : undefined}
-                  onClick={() => setStake(s)}
+                  className={stake === st ? "is-active" : undefined}
+                  onClick={() => setStake(st)}
                 >
-                  {s}
+                  {st}
                 </button>
               ))}
               <span className="axis-muted">Stake</span>
             </div>
-
             <div className="axis-actions">
-              <button type="button" className="axis-btn axis-btn-primary" onClick={() => tryBuy("yes")} disabled={coin < 5}>
+              <button type="button" className="axis-btn axis-btn-primary" onClick={() => buy(market.id, "yes", stake)} disabled={coin < 5}>
                 Buy YES
               </button>
-              <button type="button" className="axis-btn" onClick={() => tryBuy("no")} disabled={coin < 5}>
+              <button type="button" className="axis-btn" onClick={() => buy(market.id, "no", stake)} disabled={coin < 5}>
                 Buy NO
               </button>
-              <button type="button" className="axis-btn" onClick={onTick}>
+              <button type="button" className="axis-btn" onClick={tick}>
                 Step tape
               </button>
             </div>
-
             <div className="axis-positions">
               <p className="axis-kicker">Position</p>
               {!yesPos && !noPos ? <p className="axis-muted">Flat.</p> : null}
@@ -177,7 +137,7 @@ export function AxisMarket({
                     YES {yesPos.shares.toFixed(2)} @ {yesPos.avgCents.toFixed(1)}¢ · MTM{" "}
                     {Math.round(positionValue(yesPos, market.yesCents))}
                   </span>
-                  <button type="button" className="axis-btn axis-btn-tiny" onClick={() => trySell("yes")}>
+                  <button type="button" className="axis-btn axis-btn-tiny" onClick={() => sell(market.id, "yes")}>
                     Close
                   </button>
                 </div>
@@ -188,7 +148,7 @@ export function AxisMarket({
                     NO {noPos.shares.toFixed(2)} @ {noPos.avgCents.toFixed(1)}¢ · MTM{" "}
                     {Math.round(positionValue(noPos, market.yesCents))}
                   </span>
-                  <button type="button" className="axis-btn axis-btn-tiny" onClick={() => trySell("no")}>
+                  <button type="button" className="axis-btn axis-btn-tiny" onClick={() => sell(market.id, "no")}>
                     Close
                   </button>
                 </div>
