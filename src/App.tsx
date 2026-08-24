@@ -279,6 +279,7 @@ export default function App() {
                         card={card}
                         selected={state.selectedId === card.id}
                         onSelect={() => setState((s) => ({ ...s, selectedId: card.id }))}
+                        onPlace={() => placeOnTile(card.neighborhood)}
                       />
                     ))
                   )}
@@ -367,29 +368,34 @@ function CardButton({
   card,
   selected,
   onSelect,
+  onPlace,
 }: {
   card: PropertyCard;
   selected: boolean;
   onSelect: () => void;
+  onPlace: () => void;
 }) {
   return (
-    <button
-      type="button"
-      className={`axis-card${selected ? " is-selected" : ""}`}
-      onClick={onSelect}
-    >
-      <div className="axis-card-top">
-        <h3>{card.name}</h3>
-        <span className={`axis-rarity ${card.rarity}`}>{card.rarity}</span>
-      </div>
-      <div className="axis-meta">
-        <span>{card.neighborhood}</span>
-        <span>{card.subtype}</span>
-        <span>{card.cost} coin</span>
-        <span>{card.baseRent} rent</span>
-      </div>
-      <p className="axis-ability">{card.ability}</p>
-    </button>
+    <div className={`axis-card${selected ? " is-selected" : ""}`}>
+      <button type="button" className="axis-card-select" onClick={onSelect}>
+        <div className="axis-card-top">
+          <h3>{card.name}</h3>
+          <span className={`axis-rarity ${card.rarity}`}>{card.rarity}</span>
+        </div>
+        <div className="axis-meta">
+          <span>{card.neighborhood}</span>
+          <span>{card.subtype}</span>
+          <span>{card.cost} coin</span>
+          <span>{card.baseRent} rent</span>
+        </div>
+        <p className="axis-ability">{card.ability}</p>
+      </button>
+      {selected ? (
+        <button type="button" className="axis-btn axis-btn-tiny axis-btn-gold" onClick={onPlace}>
+          Place on {card.neighborhood}
+        </button>
+      ) : null}
+    </div>
   );
 }
 
