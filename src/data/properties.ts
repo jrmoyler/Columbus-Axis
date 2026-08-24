@@ -1,6 +1,3 @@
-// Property cards for The Columbus Axis — data-driven TCG layer
-// Real neighborhood / submarket names; costs, rents, abilities are game-tuned fiction.
-
 export type PropertyCategory = "residential" | "commercial";
 export type PropertySubtype = "Residential" | "Office" | "Retail" | "Industrial" | "Mixed-Use";
 
@@ -18,6 +15,28 @@ export interface PropertyCard {
   mapX: number;
   mapY: number;
 }
+
+/** World-space [x, z] on the Central Ohio disc. */
+export const MAP_TILES: Record<string, [number, number]> = {
+  "Short North": [-0.8, 0.6],
+  "German Village": [0.4, -1.2],
+  Downtown: [0, 0],
+  "New Albany": [3.8, 2.4],
+  "Polaris Fashion District": [1.6, 3.2],
+  "Rickenbacker Corridor": [2.2, -3.0],
+  Clintonville: [-1.4, 2.0],
+  "Arena District": [-0.6, 0.3],
+  "Dublin Bridge Street": [-3.2, 2.6],
+  "Upper Arlington": [-2.4, 1.4],
+  Franklinton: [-1.8, -1.0],
+  "Groveport Logistics Park": [3.0, -3.4],
+  Bexley: [2.6, 0.4],
+  "Grandview Heights": [-2.8, 0.2],
+  Easton: [3.4, 1.2],
+  "Hilliard Tech Park": [-4.0, 1.0],
+};
+
+export const TOTAL_TILES = Object.keys(MAP_TILES).length;
 
 export const PROPERTY_CARDS: PropertyCard[] = [
   {
@@ -42,7 +61,7 @@ export const PROPERTY_CARDS: PropertyCard[] = [
     subtype: "Residential",
     cost: 160,
     baseRent: 11,
-    ability: "Passive: +1 rent for every adjacent residential you own",
+    ability: "Passive: +1 rent for every other residential you own",
     abilityKey: "adjacency-residential",
     rarity: "common",
     mapX: 52,
@@ -56,7 +75,7 @@ export const PROPERTY_CARDS: PropertyCard[] = [
     subtype: "Office",
     cost: 320,
     baseRent: 22,
-    ability: "On play: trigger 'Conversion incentive' style pressure on Office markets",
+    ability: "On play: conversion-incentive pressure on Office markets",
     abilityKey: "conversion-pressure",
     rarity: "rare",
     mapX: 50,
@@ -98,7 +117,7 @@ export const PROPERTY_CARDS: PropertyCard[] = [
     subtype: "Industrial",
     cost: 290,
     baseRent: 20,
-    ability: "Passive: Logistics Boom events grant double Axis Coin when you own this",
+    ability: "Passive: Logistics Boom events grant double Axis Coin",
     abilityKey: "logistics-double",
     rarity: "uncommon",
     mapX: 62,
@@ -112,7 +131,7 @@ export const PROPERTY_CARDS: PropertyCard[] = [
     subtype: "Residential",
     cost: 140,
     baseRent: 9,
-    ability: "Cheap entry. On play: draw one extra residential card next turn (v1: +50 coin)",
+    ability: "Cheap entry. On play: +50 Axis Coin",
     abilityKey: "starter-boost",
     rarity: "common",
     mapX: 45,
@@ -126,7 +145,7 @@ export const PROPERTY_CARDS: PropertyCard[] = [
     subtype: "Mixed-Use",
     cost: 350,
     baseRent: 24,
-    ability: "Counts as both Residential and Commercial for ownership scoring",
+    ability: "Counts as both Residential and Commercial for Dominion",
     abilityKey: "dual-count",
     rarity: "rare",
     mapX: 47,
@@ -168,7 +187,7 @@ export const PROPERTY_CARDS: PropertyCard[] = [
     subtype: "Mixed-Use",
     cost: 175,
     baseRent: 11,
-    ability: "On play: unlock a one-time 'Inventory surge' counter-event",
+    ability: "On play: fire a one-time Inventory Surge on residential tape",
     abilityKey: "counter-surge",
     rarity: "common",
     mapX: 42,
@@ -188,6 +207,62 @@ export const PROPERTY_CARDS: PropertyCard[] = [
     mapX: 68,
     mapY: 78,
   },
+  {
+    id: "bexley-tudor",
+    name: "Bexley Tudor Court",
+    neighborhood: "Bexley",
+    category: "residential",
+    subtype: "Residential",
+    cost: 220,
+    baseRent: 15,
+    ability: "On play: +3¢ bias to metro housing-supply markets",
+    abilityKey: "bias-metro",
+    rarity: "uncommon",
+    mapX: 64,
+    mapY: 46,
+  },
+  {
+    id: "grandview-loft",
+    name: "Grandview Heights Loft Row",
+    neighborhood: "Grandview Heights",
+    category: "residential",
+    subtype: "Residential",
+    cost: 170,
+    baseRent: 11,
+    ability: "Passive: +1 rent for every retail property you own",
+    abilityKey: "retail-adjacency",
+    rarity: "common",
+    mapX: 32,
+    mapY: 48,
+  },
+  {
+    id: "easton-town",
+    name: "Easton Town Center Block",
+    neighborhood: "Easton",
+    category: "commercial",
+    subtype: "Retail",
+    cost: 310,
+    baseRent: 21,
+    ability: "On play: +5¢ to retail traffic and commercial average",
+    abilityKey: "easton-cluster",
+    rarity: "rare",
+    mapX: 70,
+    mapY: 36,
+  },
+  {
+    id: "hilliard-flex",
+    name: "Hilliard Tech Flex Campus",
+    neighborhood: "Hilliard Tech Park",
+    category: "commercial",
+    subtype: "Industrial",
+    cost: 250,
+    baseRent: 17,
+    ability: "Passive: +2 rent while Logistics Boom is priced above 55¢",
+    abilityKey: "logistics-rent",
+    rarity: "uncommon",
+    mapX: 22,
+    mapY: 40,
+  },
 ];
 
 export const STARTER_HAND_IDS = [
@@ -195,3 +270,16 @@ export const STARTER_HAND_IDS = [
   "german-village-row",
   "dublin-bridge",
 ];
+
+export const cardById = (id: string) => PROPERTY_CARDS.find((c) => c.id === id);
+
+export function fisherYates<T>(items: T[], rand: () => number = Math.random): T[] {
+  const next = items.slice();
+  for (let i = next.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    const tmp = next[i]!;
+    next[i] = next[j]!;
+    next[j] = tmp;
+  }
+  return next;
+}
