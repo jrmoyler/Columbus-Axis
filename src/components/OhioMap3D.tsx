@@ -6,23 +6,39 @@ interface OhioMap3DProps {
   owned: Record<string, PropertyCard>;
   selectedCard: PropertyCard | null;
   onTileClick: (neighborhood: string) => void;
-  width?: number;
+  /** Optional fixed height in px; by default the map keeps a 3:2 box. */
   height?: number;
 }
 
 const TILE_POSITIONS: Record<string, [number, number]> = {
-  "Short North": [-0.8, 0.6],
-  "German Village": [0.4, -1.2],
   Downtown: [0, 0],
-  "New Albany": [3.8, 2.4],
-  "Polaris Fashion District": [1.6, 3.2],
-  "Rickenbacker Corridor": [2.2, -3.0],
-  Clintonville: [-1.4, 2.0],
-  "Arena District": [-0.6, 0.3],
-  "Dublin Bridge Street": [-3.2, 2.6],
-  "Upper Arlington": [-2.4, 1.4],
-  Franklinton: [-1.8, -1.0],
-  "Groveport Logistics Park": [3.0, -3.4],
+  "Arena District": [-1.15, 0.35],
+  "Short North": [-0.45, 1.45],
+  Clintonville: [-1.3, 2.75],
+  Franklinton: [-2.0, -1.0],
+  "German Village": [0.6, -1.5],
+  "Upper Arlington": [-3.0, 1.6],
+  "Dublin Bridge Street": [-3.7, 3.1],
+  "Polaris Fashion District": [1.5, 3.5],
+  "New Albany": [3.9, 2.3],
+  "Rickenbacker Corridor": [2.1, -3.0],
+  "Groveport Logistics Park": [3.6, -3.7],
+};
+
+/** Tile captions — the full submarket names collide at map scale. */
+const TILE_LABELS: Record<string, string> = {
+  Downtown: "Downtown",
+  "Arena District": "Arena",
+  "Short North": "Short North",
+  Clintonville: "Clintonville",
+  Franklinton: "Franklinton",
+  "German Village": "German Vlg",
+  "Upper Arlington": "Upper Arl.",
+  "Dublin Bridge Street": "Dublin",
+  "Polaris Fashion District": "Polaris",
+  "New Albany": "New Albany",
+  "Rickenbacker Corridor": "Rickenbacker",
+  "Groveport Logistics Park": "Groveport",
 };
 
 const CATEGORY_COLOR: Record<string, number> = {
@@ -34,10 +50,14 @@ export default function OhioMap3D({
   owned,
   selectedCard,
   onTileClick,
-  width = 640,
-  height = 420,
+  height,
 }: OhioMap3DProps) {
   const mountRef = useRef<HTMLDivElement>(null);
+  // The scene is built once (deps: width/height), so the click handler would
+  // otherwise close over the first render's callback and never see the card
+  // the player currently has selected.
+  const onTileClickRef = useRef(onTileClick);
+  onTileClickRef.current = onTileClick;
   const sceneRef = useRef<{
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -57,15 +77,30 @@ export default function OhioMap3D({
     scene.background = new THREE.Color(0x0a0a0a);
     scene.fog = new THREE.Fog(0x0a0a0a, 12, 28);
 
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(45, 1.5, 0.1, 100);
     camera.position.set(0, 9.5, 11);
     camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
+    renderer.domElement.style.display = "block";
+    renderer.domElement.style.width = "100%";
+    renderer.domElement.style.height = "100%";
     mount.appendChild(renderer.domElement);
+
+    // The scene is created once; resizing adjusts the camera and drawing buffer
+    // in place so placed buildings survive a layout change.
+    const applySize = () => {
+      const w = mount.clientWidth || 640;
+      const h = mount.clientHeight || 420;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h, false);
+    };
+    applySize();
+    const resizeObserver = new ResizeObserver(applySize);
+    resizeObserver.observe(mount);
 
     const ambient = new THREE.AmbientLight(0x404050, 0.55);
     scene.add(ambient);
@@ -112,7 +147,7 @@ export default function OhioMap3D({
     const mouse = new THREE.Vector2();
 
     Object.entries(TILE_POSITIONS).forEach(([name, [x, z]]) => {
-      const tileGeo = new THREE.CylinderGeometry(0.38, 0.42, 0.08, 16);
+      const tileGeo = new THREE.CylinderGeometry(0.46, 0.5, 0.08, 20);
       const tileMat = new THREE.MeshStandardMaterial({
         color: 0x1e1e1e,
         roughness: 0.8,
@@ -135,12 +170,20 @@ export default function OhioMap3D({
       ctx.font = "bold 28px Space Grotesk, system-ui, sans-serif";
       ctx.fillStyle = "#8A8F98";
       ctx.textAlign = "center";
-      ctx.fillText(name.split(" ")[0], 128, 40);
+      ctx.fillText(TILE_LABELS[name] ?? name, 128, 40);
       const tex = new THREE.CanvasTexture(canvas);
-      const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+      // sizeAttenuation off keeps every caption the same size regardless of how
+      // far the orbiting camera is from that tile.
+      const spriteMat = new THREE.SpriteMaterial({
+        map: tex,
+        transparent: true,
+        sizeAttenuation: false,
+        depthTest: false,
+      });
       const sprite = new THREE.Sprite(spriteMat);
-      sprite.scale.set(1.6, 0.4, 1);
-      sprite.position.set(x, 0.35, z);
+      sprite.scale.set(0.13, 0.0325, 1);
+      sprite.position.set(x, 0.42, z);
+      sprite.renderOrder = 2;
       scene.add(sprite);
     });
 
@@ -148,7 +191,7 @@ export default function OhioMap3D({
     let prevX = 0;
     let theta = 0.4;
     let phi = 0.85;
-    const radius = 14;
+    const radius = 12;
 
     const updateCamera = () => {
       camera.position.x = radius * Math.sin(phi) * Math.sin(theta);
@@ -158,8 +201,11 @@ export default function OhioMap3D({
     };
     updateCamera();
 
+    let dragDistance = 0;
+
     const onPointerDown = (e: PointerEvent) => {
       isDragging = true;
+      dragDistance = 0;
       prevX = e.clientX;
     };
     const onPointerUp = () => {
@@ -169,11 +215,14 @@ export default function OhioMap3D({
       if (!isDragging) return;
       const dx = e.clientX - prevX;
       prevX = e.clientX;
+      dragDistance += Math.abs(dx);
       theta -= dx * 0.005;
       updateCamera();
     };
 
     const onClick = (e: MouseEvent) => {
+      // Releasing an orbit drag should not also claim whatever is under the cursor.
+      if (dragDistance > 4) return;
       const rect = renderer.domElement.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -181,7 +230,7 @@ export default function OhioMap3D({
       const intersects = raycaster.intersectObjects(Array.from(tiles.values()));
       if (intersects.length > 0) {
         const hood = intersects[0].object.userData.neighborhood as string;
-        onTileClick(hood);
+        onTileClickRef.current(hood);
       }
     };
 
@@ -214,6 +263,7 @@ export default function OhioMap3D({
 
     return () => {
       cancelAnimationFrame(animId);
+      resizeObserver.disconnect();
       renderer.domElement.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointermove", onPointerMove);
@@ -234,7 +284,7 @@ export default function OhioMap3D({
       });
       sceneRef.current = null;
     };
-  }, [width, height]);
+  }, []);
 
   useEffect(() => {
     const ref = sceneRef.current;
@@ -323,12 +373,16 @@ export default function OhioMap3D({
     <div
       ref={mountRef}
       style={{
-        width,
+        width: "100%",
         height,
+        aspectRatio: height ? undefined : "3 / 2",
         border: "1px solid #1E1E1E",
+        borderRadius: 10,
         background: "#0A0A0A",
         position: "relative",
         overflow: "hidden",
+        touchAction: "none",
+        cursor: "grab",
       }}
     />
   );
